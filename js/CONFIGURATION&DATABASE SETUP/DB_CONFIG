@@ -1,0 +1,9 @@
+const DB_CONFIG = {
+    NAME: 'UltimateAIChatDB',
+    VERSION: 1,
+    STORES: {
+        CHAT: 'chat_history',      
+        LICENSE: 'user_license',   
+        USAGE: 'usage_tracking'    
+    }
+};
