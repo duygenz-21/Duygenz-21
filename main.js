@@ -1,4 +1,3 @@
-// Khởi tạo Mermaid.js
 mermaid.initialize({
     startOnLoad: false,
     theme: 'dark',
