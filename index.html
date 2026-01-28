@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Thinking Lab</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="diagram-container">
+        <div id="diagram-view" class="mermaid"></div>
+      </div>
+
+      <div id="sidebar">
+        <div class="panel settings-panel">
+          <h3>⚙️ Cấu hình AI</h3>
+          <input type="password" id="api-key" placeholder="Dán OpenRouter API Key..." />
+          <input type="text" id="model-name" value="google/gemini-2.0-flash-exp:free" placeholder="Nhập ID Model (vd: openai/gpt-4o)" />
+          <small>Model mặc định: Gemini 2.0 Flash (Free)</small>
+        </div>
+
+        <div class="panel editor-panel">
+          <h3>📝 Mã nguồn (Sửa trực tiếp)</h3>
+          <textarea id="editor" spellcheck="false">graph LR
+    A[Vốn 500tr] --> B{Quyết định}
+    B -- An toàn --> C[Gửi tiết kiệm]
+    B -- Mạo hiểm --> D[Nhập hàng Taobao]</textarea>
+        </div>
+
+        <div class="panel ai-panel">
+          <h3>🤖 AI Giả lập</h3>
+          <textarea id="ai-prompt" placeholder="Ví dụ: Nếu hàng bị tắc biên 1 tháng thì sao?"></textarea>
+          <button id="btn-simulate">✨ Chạy Mô Phỏng</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
