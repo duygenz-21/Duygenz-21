@@ -1,0 +1,24 @@
+{
+  "name": "flowchart-ai-editor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Ứng dụng web vẽ sơ đồ với AI và Mermaid.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.4.9"
+  },
+  "keywords": [
+    "mermaid",
+    "flowchart",
+    "ai",
+    "diagram",
+    "editor"
+  ],
+  "author": "Flowchart AI Editor Team",
+  "license": "MIT"
+}
