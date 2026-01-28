@@ -1,41 +1,314 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Business Thinking Lab</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div id="app">
-      <div id="diagram-container">
-        <div id="diagram-view" class="mermaid"></div>
-      </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Flowchart Editor với Mermaid.js</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-project-diagram"></i>
+                <h1>AI Flowchart Editor</h1>
+            </div>
+            <div class="header-controls">
+                <button id="exportBtn" class="btn">
+                    <i class="fas fa-download"></i> Xuất Ảnh
+                </button>
+                <button id="copyBtn" class="btn">
+                    <i class="far fa-copy"></i> Sao chép Code
+                </button>
+                <button id="clearBtn" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Xóa
+                </button>
+            </div>
+        </header>
 
-      <div id="sidebar">
-        <div class="panel settings-panel">
-          <h3>⚙️ Cấu hình AI</h3>
-          <input type="password" id="api-key" placeholder="Dán OpenRouter API Key..." />
-          <input type="text" id="model-name" value="google/gemini-2.0-flash-exp:free" placeholder="Nhập ID Model (vd: openai/gpt-4o)" />
-          <small>Model mặc định: Gemini 2.0 Flash (Free)</small>
+        <div class="main-content">
+            <div class="editor-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-code"></i> Mermaid Code Editor</h2>
+                    <div class="examples">
+                        <span class="examples-label">Ví dụ:</span>
+                        <select id="examples" class="examples-select">
+                            <option value="">Chọn mẫu...</option>
+                            <option value="basic">Biểu đồ cơ bản</option>
+                            <option value="flowchart">Flowchart đơn giản</option>
+                            <option value="sequence">Sequence diagram</option>
+                            <option value="gantt">Biểu đồ Gantt</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <textarea id="mermaidCode" class="code-editor" placeholder="Nhập mã Mermaid tại đây... Ví dụ:
+graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Process 1]
+    B -->|No| D[Process 2]
+    C --> E[End]
+    D --> E"></textarea>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-eye"></i> Xem Trước Sơ Đồ</h2>
+                    <div class="preview-controls">
+                        <button id="renderBtn" class="btn btn-primary">
+                            <i class="fas fa-redo"></i> Render Lại
+                        </button>
+                        <div class="theme-toggle">
+                            <span>Chế độ:</span>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="themeToggle" checked>
+                                <label for="themeToggle" class="toggle-label">
+                                    <span class="toggle-text">Tối</span>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Sáng</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <div id="mermaidPreview" class="mermaid-preview">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-project-diagram"></i>
+                            <p>Sơ đồ sẽ hiển thị ở đây</p>
+                            <p class="placeholder-sub">Nhập mã Mermaid vào editor bên trái</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="panel editor-panel">
-          <h3>📝 Mã nguồn (Sửa trực tiếp)</h3>
-          <textarea id="editor" spellcheck="false">graph LR
-    A[Vốn 500tr] --> B{Quyết định}
-    B -- An toàn --> C[Gửi tiết kiệm]
-    B -- Mạo hiểm --> D[Nhập hàng Taobao]</textarea>
+        <div class="ai-section">
+            <div class="ai-tabs">
+                <button class="ai-tab active" data-tab="direct">
+                    <i class="fas fa-bolt"></i> AI Trực tiếp
+                </button>
+                <button class="ai-tab" data-tab="draft">
+                    <i class="fas fa-edit"></i> AI Bản nháp
+                </button>
+                <button class="ai-tab" data-tab="config">
+                    <i class="fas fa-cog"></i> Cấu hình AI
+                </button>
+            </div>
+
+            <div class="ai-content">
+                <!-- AI Trực tiếp -->
+                <div id="direct-tab" class="ai-tab-content active">
+                    <div class="ai-chat">
+                        <div class="ai-messages" id="directMessages">
+                            <div class="message ai-message">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <p>Xin chào! Tôi có thể giúp bạn tạo và chỉnh sửa sơ đồ bằng mã Mermaid. Hãy mô tả sơ đồ bạn muốn tạo.</p>
+                                    <p class="message-hint">Ví dụ: "Tạo flowchart cho quy trình đăng nhập với 3 bước" hoặc "Thêm hộp 'Kiểm tra' rồi chia nhánh Yes/No"</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ai-input-area">
+                            <textarea id="directInput" class="ai-input" placeholder="Mô tả sơ đồ bạn muốn tạo..."></textarea>
+                            <button id="directSend" class="ai-send-btn">
+                                <i class="fas fa-paper-plane"></i> Gửi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Bản nháp -->
+                <div id="draft-tab" class="ai-tab-content">
+                    <div class="draft-container">
+                        <div class="draft-preview" id="draftPreview">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-clipboard"></i>
+                                <p>Bản nháp sẽ hiển thị ở đây</p>
+                                <p class="placeholder-sub">Yêu cầu AI tạo bản nháp ở khung bên dưới</p>
+                            </div>
+                        </div>
+                        <div class="draft-chat">
+                            <div class="ai-messages" id="draftMessages">
+                                <div class="message ai-message">
+                                    <div class="message-avatar">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="message-content">
+                                        <p>Chế độ bản nháp cho phép bạn thử nghiệm mà không ảnh hưởng đến mã chính. Hãy mô tả sơ đồ bạn muốn thử.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ai-input-area">
+                                <textarea id="draftInput" class="ai-input" placeholder="Mô tả bản nháp sơ đồ..."></textarea>
+                                <button id="draftSend" class="ai-send-btn">
+                                    <i class="fas fa-magic"></i> Tạo Bản nháp
+                                </button>
+                            </div>
+                        </div>
+                        <div class="draft-controls">
+                            <button id="applyDraft" class="btn btn-primary" disabled>
+                                <i class="fas fa-check"></i> Áp dụng vào Editor
+                            </button>
+                            <button id="clearDraft" class="btn">
+                                <i class="fas fa-times"></i> Xóa Bản nháp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cấu hình AI -->
+                <div id="config-tab" class="ai-tab-content">
+                    <div class="config-container">
+                        <h3><i class="fas fa-key"></i> Cài đặt AI</h3>
+                        <div class="config-form">
+                            <div class="form-group">
+                                <label for="apiKey">
+                                    <i class="fas fa-key"></i> API Key
+                                </label>
+                                <div class="input-with-toggle">
+                                    <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key của bạn">
+                                    <button id="toggleKey" class="toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <p class="form-hint">
+                                    <i class="fas fa-info-circle"></i> API Key được lưu trữ cục bộ trong trình duyệt của bạn.
+                                </p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="aiModel">
+                                    <i class="fas fa-brain"></i> Mô hình AI
+                                </label>
+                                <select id="aiModel" class="form-control">
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</option>
+                                    <option value="gpt-4">GPT-4 (OpenAI)</option>
+                                    <option value="claude-3-sonnet">Claude 3 Sonnet (Anthropic)</option>
+                                    <option value="gemini-pro">Gemini Pro (Google)</option>
+                                    <option value="mock">Mock AI (Dùng để demo)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="temperature">
+                                    <i class="fas fa-thermometer-half"></i> Temperature: <span id="tempValue">0.7</span>
+                                </label>
+                                <input type="range" id="temperature" class="form-control-range" min="0" max="1" step="0.1" value="0.7">
+                                <p class="form-hint">
+                                    <i class="fas fa-info-circle"></i> Giá trị cao hơn tạo ra kết quả sáng tạo hơn, giá trị thấp hơn tập trung hơn.
+                                </p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="apiEndpoint">
+                                    <i class="fas fa-server"></i> API Endpoint (tùy chọn)
+                                </label>
+                                <input type="text" id="apiEndpoint" class="form-control" placeholder="https://api.openai.com/v1/chat/completions">
+                                <p class="form-hint">
+                                    <i class="fas fa-info-circle"></i> Để trống để sử dụng endpoint mặc định.
+                                </p>
+                            </div>
+
+                            <div class="form-actions">
+                                <button id="saveConfig" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Lưu Cài đặt
+                                </button>
+                                <button id="resetConfig" class="btn">
+                                    <i class="fas fa-undo"></i> Đặt lại
+                                </button>
+                            </div>
+
+                            <div class="config-info">
+                                <h4><i class="fas fa-lightbulb"></i> Ghi chú bảo mật</h4>
+                                <p>Trong môi trường thực tế, bạn nên sử dụng proxy server để bảo vệ API key. Ứng dụng này lưu trữ API key cục bộ trong trình duyệt của bạn.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="panel ai-panel">
-          <h3>🤖 AI Giả lập</h3>
-          <textarea id="ai-prompt" placeholder="Ví dụ: Nếu hàng bị tắc biên 1 tháng thì sao?"></textarea>
-          <button id="btn-simulate">✨ Chạy Mô Phỏng</button>
-        </div>
-      </div>
+        <footer class="footer">
+            <p>Ứng dụng Flowchart Editor với AI tích hợp | Sử dụng <strong>Mermaid.js</strong> và <strong>Vite</strong></p>
+            <div class="footer-links">
+                <a href="https://mermaid.js.org/" target="_blank"><i class="fas fa-external-link-alt"></i> Mermaid Docs</a>
+                <a href="#" id="toggleShortcuts"><i class="fas fa-keyboard"></i> Phím tắt</a>
+                <a href="#" id="toggleHelp"><i class="fas fa-question-circle"></i> Trợ giúp</a>
+            </div>
+        </footer>
     </div>
 
-    <script type="module" src="/main.js"></script>
-  </body>
+    <!-- Modal phím tắt -->
+    <div id="shortcutsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-keyboard"></i> Phím tắt</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcut-list">
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">Ctrl + Enter</span>
+                        <span class="shortcut-desc">Render lại sơ đồ</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">Ctrl + S</span>
+                        <span class="shortcut-desc">Lưu cài đặt</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">Ctrl + D</span>
+                        <span class="shortcut-desc">Chuyển sang chế độ bản nháp</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">Ctrl + E</span>
+                        <span class="shortcut-desc">Xuất ảnh</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <span class="shortcut-key">Ctrl + /</span>
+                        <span class="shortcut-desc">Xoá editor</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal trợ giúp -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> Trợ giúp & Hướng dẫn</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>Cách sử dụng Mermaid.js</h4>
+                <p>Mermaid là công cụ vẽ sơ đồ dựa trên mã. Dưới đây là cú pháp cơ bản:</p>
+                <pre><code>graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Process 1]
+    B -->|No| D[Process 2]
+    C --> E[End]
+    D --> E</code></pre>
+                
+                <h4>Hỗ trợ AI</h4>
+                <p>Ứng dụng này có hai chế độ AI:</p>
+                <ul>
+                    <li><strong>AI Trực tiếp:</strong> Tạo mã Mermaid ngay lập tức và chèn vào editor.</li>
+                    <li><strong>AI Bản nháp:</strong> Tạo bản nháp để thử nghiệm trước khi áp dụng.</li>
+                </ul>
+                
+                <h4>Xuất ảnh</h4>
+                <p>Bạn có thể xuất sơ đồ dưới dạng ảnh PNG bằng nút "Xuất Ảnh".</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
